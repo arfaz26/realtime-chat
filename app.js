@@ -15,14 +15,29 @@ const server = app.listen(process.env.PORT || 3000, () => {
 
 //initialize socket for the server
 const io = socketio(server);
-
+let connectedUsers = 0;
 io.on("connection", (socket) => {
   console.log("New user connected");
+  connectedUsers += 1;
+
+  io.sockets.emit("user-updated", connectedUsers);
+
+  //   io.sockets.emit("receive_message", {
+  //     message: data.message,
+  //     username: socket.username,
+  //   });
+
+  socket.broadcast.emit("new-user");
 
   socket.username = "Anonymous";
 
   socket.on("change_username", (data) => {
     socket.username = data.username;
+  });
+
+  socket.on("disconnect", (data) => {
+    connectedUsers -= 1;
+    io.sockets.emit("user-updated", connectedUsers);
   });
 
   socket.on("new_message", (data) => {
@@ -32,4 +47,10 @@ io.on("connection", (socket) => {
       username: socket.username,
     });
   });
+
+  socket.on("typing", (data) => {
+    socket.broadcast.emit("typing", { username: socket.username });
+  });
 });
+
+// io.on('dis')

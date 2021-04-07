@@ -29,4 +29,30 @@
     listItem.classList.add("list-group-item");
     messageList.appendChild(listItem);
   });
+
+  let info = document.querySelector(".info");
+
+  message.addEventListener("keypress", (e) => {
+    socket.emit("typing");
+  });
+
+  socket.on("typing", (data) => {
+    info.innerHTML = data.username + " is typing...";
+    setTimeout(() => {
+      info.textContent = "";
+    }, 1000);
+  });
+
+  socket.on("user-updated", (data) => {
+    let userCount = document.getElementById("total-users");
+    userCount.innerHTML = data;
+    console.log(data);
+  });
+
+  socket.on("new-user", (_) => {
+    let listItem = document.createElement("li");
+    listItem.textContent = "-------New user joined------";
+    listItem.classList.add("list-group-item");
+    messageList.appendChild(listItem);
+  });
 })();
