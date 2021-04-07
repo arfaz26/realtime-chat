@@ -21,18 +21,17 @@ io.on("connection", (socket) => {
   connectedUsers += 1;
 
   io.sockets.emit("user-updated", connectedUsers);
-
-  //   io.sockets.emit("receive_message", {
-  //     message: data.message,
-  //     username: socket.username,
-  //   });
-
   socket.broadcast.emit("new-user");
 
   socket.username = "Anonymous";
 
   socket.on("change_username", (data) => {
+    let oldName = socket.username;
     socket.username = data.username;
+    socket.broadcast.emit("changed_username", {
+      oldName: oldName,
+      newName: socket.username,
+    });
   });
 
   socket.on("disconnect", (data) => {
@@ -41,7 +40,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("new_message", (data) => {
-    console.log("new message");
     io.sockets.emit("receive_message", {
       message: data.message,
       username: socket.username,
@@ -52,5 +50,3 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("typing", { username: socket.username });
   });
 });
-
-// io.on('dis')
